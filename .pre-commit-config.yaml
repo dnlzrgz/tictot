@@ -1,0 +1,35 @@
+default_language_version:
+    python: python3.11
+
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+          - id: check-yaml
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+          - id: check-added-large-files
+
+    - repo: https://github.com/psf/black
+      rev: 23.1.0
+      hooks:
+          - id: black
+
+    - repo: https://github.com/pycqa/isort
+      rev: 5.12.0
+      hooks:
+          - id: isort
+            name: isort (python)
+
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: v1.0.0
+      hooks:
+          - id: mypy
+            args: [--no-strict-optional, --ignore-missing-imports]
+
+    - repo: https://github.com/python-poetry/poetry
+      rev: "1.3.0"
+      hooks:
+          - id: poetry-check
+          - id: poetry-lock
+          - id: poetry-export

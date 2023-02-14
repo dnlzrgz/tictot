@@ -1,0 +1,58 @@
+TictotApp {
+    layout: horizontal;
+    background: $boost;
+    height: 5;
+    margin: 1;
+    min-width: 50;
+    padding: 1;
+}
+
+TimerDisplay {
+    color: $text;
+    content-align: center middle;
+    text-opacity: 60%;
+    height: 3;
+}
+
+Timer {
+    layout: vertical;
+    height: 9;
+}
+
+Button {
+    width: 16;
+}
+
+#start {
+    dock: left;
+}
+
+#stop {
+    dock: left;
+    display: none;
+}
+
+#reset {
+    dock: right;
+}
+
+.counting {
+    text-style: bold;
+    color: $text;
+}
+
+.counting TimeDisplay {
+    text-opacity: 100%;
+}
+
+.counting #start {
+    display: none;
+}
+
+.counting #stop {
+    display: block;
+}
+
+.started #reset {
+    visibility: hidden;
+}
