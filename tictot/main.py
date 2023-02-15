@@ -1,105 +1,8 @@
-from time import monotonic
-
 from textual.app import App, ComposeResult
-from textual.containers import Container
-from textual.reactive import reactive
-from textual.widgets import Button, Footer, Header, Static
+from textual.widgets import Footer, Header
 
 from tictot.store import AppStatus, Store
-
-
-class TimerDisplay(Static):
-    """
-    A widget to display the time remaining.
-    """
-
-    store = Store()
-
-    start_time = reactive(monotonic)
-    time = reactive(store.work_duration)
-    total = reactive(store.work_duration)
-
-    def on_mount(self):
-        """
-        Called when the widget is mounted into the view.
-        """
-        self.update_timer = self.set_interval(1 / 60, self.update_time, pause=True)
-
-    def update_time(self):
-        """
-        Update the time remaining.
-        """
-        self.time = self.total - (monotonic() - self.start_time)
-
-    def watch_time(self, time: float):
-        """
-        Watch the time remaining and update the display.
-        """
-        mins, secs = divmod(time, 60)
-        _, mins = divmod(mins, 60)
-        self.update(f"{mins:02,.0f}:{secs:02.0f}")
-
-    def start(self):
-        """
-        Start the timer.
-        """
-        self.store.update_status(AppStatus.STARTED)
-
-        self.start_time = monotonic()
-        self.update_timer.resume()
-
-    def stop(self):
-        """
-        Stop the timer.
-        """
-        self.store.update_status(AppStatus.STOPPED)
-
-        self.update_timer.pause()
-        self.total -= monotonic() - self.start_time
-        self.time = self.total
-
-    def reset(self):
-        """
-        Reset the timer only if the timer is not running.
-        """
-        if self.store.status == AppStatus.STARTED:
-            return
-
-        self.total = self.store.work_duration
-        self.time = self.store.work_duration
-
-
-class Timer(Static):
-    """
-    A widget to display the stopwatch.
-    """
-
-    def compose(self) -> ComposeResult:
-        """
-        Create child widgets for the timer.
-        """
-        yield TimerDisplay("45:00")
-        yield Container(
-            Button("Start", id="start", variant="success"),
-            Button("Stop", id="stop", variant="error"),
-            Button("Reset", id="reset", variant="default", disabled=True),
-        )
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        Handle button presses.
-        """
-        button_id = event.button.id
-        time_display = self.query_one(TimerDisplay)
-
-        if button_id == "start":
-            self.add_class("counting")
-            time_display.start()
-        elif button_id == "stop":
-            self.remove_class("counting")
-            time_display.stop()
-        elif button_id == "reset":
-            time_display.reset()
+from tictot.widgets.timer import Timer
 
 
 class TictotApp(App):
@@ -118,20 +21,20 @@ class TictotApp(App):
     ]
 
     def action_start_timer(self) -> None:
-        time_display = self.query_one(TimerDisplay)
+        timer = self.query_one(Timer)
         if (
             self.store.status == AppStatus.STOPPED
             or self.store.status == AppStatus.IDLE
         ):
             self.add_class("counting")
-            time_display.start()
+            timer.start()
         elif self.store.status == AppStatus.STARTED:
             self.remove_class("counting")
-            time_display.stop()
+            timer.stop()
 
     def action_reset_timer(self) -> None:
-        time_display = self.query_one(TimerDisplay)
-        time_display.reset()
+        timer = self.query_one(Timer)
+        timer.reset()
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""

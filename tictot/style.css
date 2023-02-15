@@ -7,7 +7,7 @@ TictotApp {
     padding: 1;
 }
 
-TimerDisplay {
+Display {
     color: $text;
     content-align: center middle;
     text-opacity: 60%;
