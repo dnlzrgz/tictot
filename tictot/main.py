@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from enum import Enum
 from time import monotonic
 
 from textual.app import App, ComposeResult
@@ -7,91 +5,109 @@ from textual.containers import Container
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Static
 
-
-class TimerStatus(str, Enum):
-    IDLE = "idle"
-    STARTED = "started"
-    STOPPED = "stopped"
-
-
-@dataclass
-class DefaultConfig:
-    work_duration = 45 * 60
-    break_duration = 15 * 60
+from tictot.store import AppStatus, Store
 
 
 class TimerDisplay(Static):
-    """Widget to display the elapsed time."""
+    """
+    A widget to display the time remaining.
+    """
 
-    config = DefaultConfig()
+    store = Store()
 
-    status = reactive(TimerStatus.IDLE)
     start_time = reactive(monotonic)
-    time = reactive(config.work_duration)
-    total = reactive(config.work_duration)
+    time = reactive(store.work_duration)
+    total = reactive(store.work_duration)
 
-    def on_mount(self) -> None:
-        """Event handler called when widget is added to the app."""
+    def on_mount(self):
+        """
+        Called when the widget is mounted into the view.
+        """
         self.update_timer = self.set_interval(1 / 60, self.update_time, pause=True)
 
-    def update_time(self) -> None:
-        """Method to update the time to the current time."""
+    def update_time(self):
+        """
+        Update the time remaining.
+        """
         self.time = self.total - (monotonic() - self.start_time)
 
-    def watch_time(self, time: float) -> None:
-        """Called when the time attributes change."""
+    def watch_time(self, time: float):
+        """
+        Watch the time remaining and update the display.
+        """
         mins, secs = divmod(time, 60)
         _, mins = divmod(mins, 60)
         self.update(f"{mins:02,.0f}:{secs:02.0f}")
 
-    def start(self) -> None:
-        """Method to start (or resume) timer."""
-        self.status = TimerStatus.STARTED
+    def start(self):
+        """
+        Start the timer.
+        """
+        self.store.update_status(AppStatus.STARTED)
+
         self.start_time = monotonic()
         self.update_timer.resume()
 
-    def stop(self) -> None:
-        """Method to stop the time display updating."""
-        self.status = TimerStatus.STOPPED
+    def stop(self):
+        """
+        Stop the timer.
+        """
+        self.store.update_status(AppStatus.STOPPED)
+
         self.update_timer.pause()
         self.total -= monotonic() - self.start_time
         self.time = self.total
 
-    def reset(self) -> None:
-        """Method to reset the time display to zero."""
-        self.total = self.config.work_duration
-        self.time = self.config.work_duration
+    def reset(self):
+        """
+        Reset the timer only if the timer is not running.
+        """
+        if self.store.status == AppStatus.STARTED:
+            return
+
+        self.total = self.store.work_duration
+        self.time = self.store.work_duration
 
 
 class Timer(Static):
-    """A Timer widget."""
+    """
+    A widget to display the stopwatch.
+    """
 
     def compose(self) -> ComposeResult:
-        """Create child widgets for the stopwatch."""
+        """
+        Create child widgets for the timer.
+        """
         yield TimerDisplay("45:00")
         yield Container(
             Button("Start", id="start", variant="success"),
             Button("Stop", id="stop", variant="error"),
-            Button("Reset", id="reset", variant="default"),
+            Button("Reset", id="reset", variant="default", disabled=True),
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Event handler called when a button is pressed."""
+        """
+        Handle button presses.
+        """
         button_id = event.button.id
         time_display = self.query_one(TimerDisplay)
 
         if button_id == "start":
-            time_display.start()
             self.add_class("counting")
+            time_display.start()
         elif button_id == "stop":
-            time_display.stop()
             self.remove_class("counting")
+            time_display.stop()
         elif button_id == "reset":
             time_display.reset()
 
 
 class TictotApp(App):
-    """A Textual based App for time management."""
+    """
+    A Textual app for time management.
+    """
+
+    store = Store()
 
     CSS_PATH = "./style.css"
     BINDINGS = [
@@ -104,12 +120,12 @@ class TictotApp(App):
     def action_start_timer(self) -> None:
         time_display = self.query_one(TimerDisplay)
         if (
-            time_display.status == TimerStatus.STOPPED
-            or time_display.status == TimerStatus.IDLE
+            self.store.status == AppStatus.STOPPED
+            or self.store.status == AppStatus.IDLE
         ):
             self.add_class("counting")
             time_display.start()
-        elif time_display.status == TimerStatus.STARTED:
+        elif self.store.status == AppStatus.STARTED:
             self.remove_class("counting")
             time_display.stop()
 
