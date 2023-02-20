@@ -21,6 +21,7 @@ class TictotApp(App):
     ]
 
     status = reactive(AppStatus.STOPPED)
+    current_task = reactive("")
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -60,7 +61,4 @@ class TictotApp(App):
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle input submission."""
-
-        # TODO: after input submit change focus
-        # TODO: on start, don't allow input
-        print(event.value)
+        self.current_task = event.value

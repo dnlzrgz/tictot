@@ -75,19 +75,19 @@ class Timer(Static):
             classes="buttons",
         )
 
-    def start(self):
+    def start(self) -> None:
         """
         Passtrough method to start the timer.
         """
         self.query_one(Display).start()
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Passtrough method to stop the timer.
         """
         self.query_one(Display).stop()
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Passtrough method to reset the timer.
         """
