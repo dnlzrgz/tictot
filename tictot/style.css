@@ -1,26 +1,22 @@
 TictotApp {
-    layout: horizontal;
-    background: $boost;
-    height: 5;
-    margin: 1;
-    min-width: 50;
-    padding: 1;
-}
-
-Display {
-    color: $text;
-    content-align: center middle;
-    text-opacity: 60%;
-    height: 3;
+    align: center middle;
+    background: $surface;
+    layout: vertical;
 }
 
 Timer {
-    layout: vertical;
-    height: 9;
+    background: $boost;
+    color: $text;
 }
 
-Button {
-    width: 16;
+Display {
+    content-align: center middle;
+    height: 5;
+    text-opacity: 60%;
+}
+
+.buttons {
+    height: 9;
 }
 
 #start {
@@ -37,8 +33,8 @@ Button {
 }
 
 .counting {
-    text-style: bold;
     color: $text;
+    text-style: bold;
 }
 
 .counting TimeDisplay {
