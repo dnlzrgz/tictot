@@ -4,6 +4,10 @@ TictotApp {
     layout: vertical;
 }
 
+ListView {
+    min-height: 5;
+}
+
 Timer {
     background: $boost;
     color: $text;
@@ -16,12 +20,12 @@ TaskInput {
 
 Display {
     content-align: center middle;
-    height: 5;
+    min-height: 3;
     text-opacity: 60%;
 }
 
 .buttons {
-    height: 9;
+    height: 4;
 }
 
 #start {

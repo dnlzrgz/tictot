@@ -2,8 +2,9 @@ from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Input
 
+from tictot.db import DB, Base
 from tictot.status import AppStatus
-from tictot.widgets import Timer
+from tictot.widgets import Sessions, Timer
 
 
 class TictotApp(App):
@@ -20,6 +21,8 @@ class TictotApp(App):
         ("q", "quit", "Quit"),
     ]
 
+    db = DB()
+
     status = reactive(AppStatus.STOPPED)
     current_task = reactive("")
 
@@ -28,12 +31,18 @@ class TictotApp(App):
         yield Header()
         yield Footer()
         yield Timer()
+        yield Sessions()
 
     def watch_status(self, status: AppStatus) -> None:
         if status == AppStatus.STARTED:
             self.status = status
             self.add_class("counting")
             self.query_one(Timer).start()
+
+            if self.current_task:
+                self.query_one(Sessions).add_new_session(self.current_task)
+            else:
+                self.query_one(Sessions).add_new_session("Default")
         elif status == AppStatus.STOPPED:
             self.status = status
             self.remove_class("counting")
@@ -47,6 +56,10 @@ class TictotApp(App):
 
     def action_reset_timer(self) -> None:
         self.query_one(Timer).reset()
+
+    def on_mount(self) -> None:
+        """Create database tables."""
+        Base.metadata.create_all(self.db.engine)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
