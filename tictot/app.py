@@ -2,7 +2,7 @@ from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Input
 
-from tictot.db import DB, Base
+from tictot.db.db import DB, Base
 from tictot.status import AppStatus
 from tictot.widgets import Sessions, Timer
 
@@ -16,7 +16,6 @@ class TictotApp(App):
     CSS_PATH = "./style.css"
     BINDINGS = [
         ("s", "start_timer", "Start/Stop"),
-        ("r", "reset_timer", "Reset"),
         ("d", "toggle_dark", "Toggle dark mode"),
         ("q", "quit", "Quit"),
     ]
@@ -39,6 +38,9 @@ class TictotApp(App):
             self.add_class("counting")
             self.query_one(Timer).start()
 
+            self.query_one("#start").disabled = True
+            self.query_one("#stop").disabled = False
+
             if self.current_task:
                 self.query_one(Sessions).add_new_session(self.current_task)
             else:
@@ -48,14 +50,14 @@ class TictotApp(App):
             self.remove_class("counting")
             self.query_one(Timer).stop()
 
+            self.query_one("#stop").disabled = True
+            self.query_one("#start").disabled = False
+
     def action_start_timer(self) -> None:
         if self.status == AppStatus.STOPPED:
             self.status = AppStatus.STARTED
         elif self.status == AppStatus.STARTED:
             self.status = AppStatus.STOPPED
-
-    def action_reset_timer(self) -> None:
-        self.query_one(Timer).reset()
 
     def on_mount(self) -> None:
         """Create database tables."""
@@ -69,8 +71,6 @@ class TictotApp(App):
             self.status = AppStatus.STARTED
         elif button_id == "stop":
             self.status = AppStatus.STOPPED
-        elif button_id == "reset" and self.status == AppStatus.STOPPED:
-            self.query_one(Timer).reset()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle input submission."""

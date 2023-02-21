@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from tictot.db import Base
+from tictot.db.db import Base
 
 
 class TimeEntry(Base):

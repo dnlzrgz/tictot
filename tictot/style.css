@@ -33,11 +33,6 @@ Display {
 }
 
 #stop {
-    dock: left;
-    display: none;
-}
-
-#reset {
     dock: right;
 }
 
@@ -55,13 +50,11 @@ Display {
 }
 
 .counting #start {
-    display: none;
+    display: block;
+    /* TODO: disable */
 }
 
 .counting #stop {
     display: block;
-}
-
-.started #reset {
-    visibility: hidden;
+    /* TODO: enable */
 }

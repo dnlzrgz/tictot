@@ -43,9 +43,9 @@ class Display(Static):
         self.time = self.total
 
     def reset(self) -> None:
-        """Method to reset the time display to zero."""
-        self.total = 0
-        self.time = 0
+        """Method to reset the time display."""
+        self.total = 0.0
+        self.time = 0.0
 
 
 class TaskInput(Static):
@@ -68,10 +68,9 @@ class Timer(Static):
         """
         yield Display()
         yield Container(
-            Button("Start", id="start", variant="success"),
-            Button("Stop", id="stop", variant="error"),
+            Button("Start", id="start", variant="success", disabled=False),
             TaskInput(),
-            Button("Reset", id="reset", variant="default"),
+            Button("Stop", id="stop", variant="error", disabled=True),
             classes="buttons",
         )
 
@@ -86,9 +85,4 @@ class Timer(Static):
         Passtrough method to stop the timer.
         """
         self.query_one(Display).stop()
-
-    def reset(self) -> None:
-        """
-        Passtrough method to reset the timer.
-        """
         self.query_one(Display).reset()
