@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
 
-from tictot.db import models
+import tictot.db.models as models
 
 
 def create_task(db: Session, task: models.Task) -> models.Task:
     """
     Create a new task. If task already exists, return the existing task.
     """
-    db_task: models.Task | None = get_task(db, task["id"])
+    db_task = get_task(db, task.id)
     if db_task is not None:
         return db_task
 
@@ -61,12 +61,8 @@ def update_task(db: Session, task_id: int, task: models.Task) -> models.Task:
 
 def create_time_entry(db: Session, time_entry: models.TimeEntry) -> models.TimeEntry:
     """
-    Create a new time entry. If time entry already exists, return the existing time entry.
+    Create a new time entry.
     """
-    db_time_entry: models.TimeEntry | None = get_time_entry(db, time_entry["id"])
-    if db_time_entry is not None:
-        return db_time_entry
-
     db.add(time_entry)
     db.commit()
     db.refresh(time_entry)
@@ -89,15 +85,12 @@ def get_time_entries(db: Session, task_id: int) -> list[models.TimeEntry]:
     return db.query(models.TimeEntry).filter(models.TimeEntry.task_id == task_id).all()
 
 
-def get_time_entries_by_date(
-    db: Session, task_id: int, date: str
-) -> list[models.TimeEntry]:
+def get_time_entries_by_date(db: Session, date: str) -> list[models.TimeEntry]:
     """
     Get all time entries for a task on a specific date.
     """
     return (
         db.query(models.TimeEntry)
-        .filter(models.TimeEntry.task_id == task_id)
         .filter(models.TimeEntry.start_time.like(f"{date}%"))
         .all()
     )

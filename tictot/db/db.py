@@ -7,12 +7,12 @@ from sqlalchemy.orm import Session, sessionmaker
 
 @dataclass
 class DB:
-    url: str = "sqlite:///:memory:"
+    url: str = "sqlite:///./tictot.db"
     engine: Engine = create_engine(url, connect_args={"check_same_thread": False})
-    db: Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)()
+    session: Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)()
 
     def close(self) -> None:
-        self.db.close()
+        self.session.close()
         self.engine.dispose()
 
 

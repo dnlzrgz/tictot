@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from tictot.db.db import Base
+from tictot.db import Base
 
 
 class TimeEntry(Base):
@@ -12,7 +12,7 @@ class TimeEntry(Base):
     end_time = Column(DateTime)
     task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False)
 
-    task = relationship("Task")
+    task = relationship("Task", backref="time_entries")
 
 
 class Task(Base):
@@ -20,5 +20,3 @@ class Task(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)
-
-    time_entries = relationship("TimeEntry", backref="task")
