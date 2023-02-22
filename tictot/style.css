@@ -4,8 +4,16 @@ TictotApp {
     layout: vertical;
 }
 
+ListItem {
+    grid-columns: 20% 1fr 20%;
+    grid-size: 3 1;
+    layout: grid;
+    min-height: 1;
+    padding: 1;
+}
+
 ListView {
-    min-height: 5;
+    min-height: 9;
 }
 
 Timer {
@@ -14,14 +22,23 @@ Timer {
 }
 
 TaskInput {
-    display: block;
     border: none;
+    display: block;
+    min-width: 9;
 }
 
 Display {
     content-align: center middle;
     min-height: 3;
     text-opacity: 60%;
+}
+
+.header {
+    grid-columns: 20% 1fr 20%;
+    grid-size: 3 1;
+    height: 3;
+    layout: grid;
+    padding: 1;
 }
 
 .buttons {
@@ -51,10 +68,8 @@ Display {
 
 .counting #start {
     display: block;
-    /* TODO: disable */
 }
 
 .counting #stop {
     display: block;
-    /* TODO: enable */
 }
