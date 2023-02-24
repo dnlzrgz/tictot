@@ -33,7 +33,7 @@ Display {
     text-opacity: 60%;
 }
 
-.header {
+.total {
     grid-columns: 20% 1fr 20%;
     grid-size: 3 1;
     height: 3;

@@ -8,10 +8,10 @@ from tictot.db import DB, Base
 from tictot.db.crud import (
     create_task,
     create_time_entry,
-    get_task_by_name,
     get_time_entries_by_date,
+    update_time_entry_end_time,
 )
-from tictot.db.models import Task, TimeEntry
+from tictot.db.models import TimeEntry
 from tictot.status import AppStatus
 from tictot.widgets import TimeEntries, Timer
 
@@ -31,9 +31,9 @@ class TictotApp(App):
 
     db = DB()
     local_session = db.session
+    current_entry = reactive(None)
 
-    sessions = reactive([])
-    status = reactive(AppStatus.STOPPED)
+    status = reactive(AppStatus.IDLE)
     current_task = reactive("")
 
     def compose(self) -> ComposeResult:
@@ -45,37 +45,9 @@ class TictotApp(App):
 
     def watch_status(self, status: AppStatus) -> None:
         if status == AppStatus.STARTED:
-            self.status = status
-            self.add_class("counting")
-            self.query_one(Timer).start()
-
-            self.query_one("#start").disabled = True
-            self.query_one("#stop").disabled = False
-
-            if self.current_task:
-                db_task = create_task(self.local_session, Task(name=self.current_task))
-                time_entry = TimeEntry(task_id=db_task.id, start_time=datetime.now())
-                create_time_entry(self.local_session, time_entry)
-                self.sessions.append(time_entry.task)
-                self.query_one(TimeEntries).add_new_session(db_task.name)
-            else:
-                default_task = get_task_by_name(self.local_session, "Default")
-                time_entry = TimeEntry(
-                    task_id=default_task.id, start_time=datetime.now()
-                )
-                create_time_entry(self.local_session, time_entry)
-                self.sessions.append(time_entry.task)
-                self.query_one(TimeEntries).add_new_session("Default")
+            self.start_timer()
         elif status == AppStatus.STOPPED:
-            self.status = status
-            self.remove_class("counting")
-            self.query_one(Timer).stop()
-
-            self.query_one("#stop").disabled = True
-            self.query_one("#start").disabled = False
-
-    def watch_sessions(self, sessions: list) -> None:
-        print(len(sessions))
+            self.stop_timer()
 
     def action_start_timer(self) -> None:
         if self.status == AppStatus.STOPPED:
@@ -83,16 +55,26 @@ class TictotApp(App):
         elif self.status == AppStatus.STARTED:
             self.status = AppStatus.STOPPED
 
+    async def action_quit(self) -> None:
+        if self.current_entry is not None:
+            update_time_entry_end_time(
+                self.local_session, self.current_entry.id, datetime.now()
+            )
+
+        self.local_session.close()
+        await super().action_quit()
+
     def on_mount(self) -> None:
         """Create database tables."""
         Base.metadata.create_all(self.db.engine)
 
         # Create default task
-        create_task(self.local_session, Task(name="Default"))
+        create_task(self.local_session, task_name="Default")
 
         # load sessions from database from today
         today_date = datetime.today().strftime("%Y-%m-%d")
-        self.sessions = get_time_entries_by_date(self.local_session, date=today_date)
+        entries = get_time_entries_by_date(self.local_session, date=today_date)
+        self.query_one(TimeEntries).add_multiple_entries(entries)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
@@ -106,3 +88,41 @@ class TictotApp(App):
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle input submission."""
         self.current_task = event.value
+        self.status = AppStatus.STARTED
+
+    def start_timer(self) -> None:
+        self.add_class("counting")
+        self.query_one(Timer).start()
+
+        self.query_one("#start").disabled = True
+        self.query_one("#stop").disabled = False
+
+        if self.current_task:
+            self.add_entry(self.current_task)
+        else:
+            self.add_entry()
+
+    def stop_timer(self) -> None:
+        self.remove_class("counting")
+        self.query_one(Timer).stop()
+
+        update_time_entry_end_time(
+            self.local_session, self.current_entry.id, datetime.now()
+        )
+
+        self.query_one(TimeEntries).update_latest_entry(
+            self.current_entry.start_time, datetime.now()
+        )
+
+        self.query_one("#stop").disabled = True
+        self.query_one("#start").disabled = False
+
+    def add_entry(self, task_name: str = "Default") -> None:
+        now = datetime.now()
+
+        task = create_task(self.local_session, task_name)
+        time_entry = TimeEntry(task_id=task.id, start_time=datetime.now())
+        self.current_entry = time_entry
+
+        create_time_entry(self.local_session, time_entry)
+        self.query_one(TimeEntries).add_new_entry(now, task_name)

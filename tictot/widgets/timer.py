@@ -27,8 +27,9 @@ class Display(Static):
 
     def watch_time(self, time: float) -> None:
         """Called when the time attribute changes."""
-        minutes, seconds = divmod(time, 60)
-        _, minutes = divmod(minutes, 60)
+        minutes = (time // 60) % 60
+        seconds = time % 60
+
         self.update(f"{minutes:02.0f}:{seconds:02.0f}")
 
     def start(self) -> None:
