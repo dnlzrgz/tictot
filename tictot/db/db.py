@@ -1,15 +1,15 @@
-from dataclasses import dataclass
-
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 
-@dataclass
 class DB:
-    url: str = "sqlite:///./tictot.db"
-    engine: Engine = create_engine(url, connect_args={"check_same_thread": False})
-    session: Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)()
+    def __init__(self, url: str = "sqlite://:memory:") -> None:
+        self.url: str = url
+        self.engine = create_engine(url, connect_args={"check_same_thread": False})
+        self.session = sessionmaker(
+            autocommit=False, autoflush=False, bind=self.engine
+        )()
 
     def close(self) -> None:
         self.session.close()

@@ -4,6 +4,7 @@ from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Input
 
+from tictot.config import Config
 from tictot.db import DB, Base
 from tictot.db.crud import (
     create_task,
@@ -29,8 +30,10 @@ class TictotApp(App):
         ("q", "quit", "Quit"),
     ]
 
-    db = DB()
-    local_session = db.session
+    config = Config()
+
+    db = DB(url=config.DB_PATH)
+    db_session = db.session
     current_entry = reactive(None)
 
     status = reactive(AppStatus.IDLE)
@@ -58,10 +61,10 @@ class TictotApp(App):
     async def action_quit(self) -> None:
         if self.current_entry is not None:
             update_time_entry_end_time(
-                self.local_session, self.current_entry.id, datetime.now()
+                self.db_session, self.current_entry.id, datetime.now()
             )
 
-        self.local_session.close()
+        self.db.close()
         await super().action_quit()
 
     def on_mount(self) -> None:
@@ -69,11 +72,11 @@ class TictotApp(App):
         Base.metadata.create_all(self.db.engine)
 
         # Create default task
-        create_task(self.local_session, task_name="Default")
+        create_task(self.db_session, task_name="Default")
 
         # load sessions from database from today
         today_date = datetime.today().strftime("%Y-%m-%d")
-        entries = get_time_entries_by_date(self.local_session, date=today_date)
+        entries = get_time_entries_by_date(self.db_session, date=today_date)
         self.query_one(TimeEntries).add_multiple_entries(entries)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -107,7 +110,7 @@ class TictotApp(App):
         self.query_one(Timer).stop()
 
         update_time_entry_end_time(
-            self.local_session, self.current_entry.id, datetime.now()
+            self.db_session, self.current_entry.id, datetime.now()
         )
 
         self.query_one(TimeEntries).update_latest_entry(
@@ -120,9 +123,9 @@ class TictotApp(App):
     def add_entry(self, task_name: str = "Default") -> None:
         now = datetime.now()
 
-        task = create_task(self.local_session, task_name)
+        task = create_task(self.db_session, task_name)
         time_entry = TimeEntry(task_id=task.id, start_time=datetime.now())
         self.current_entry = time_entry
 
-        create_time_entry(self.local_session, time_entry)
+        create_time_entry(self.db_session, time_entry)
         self.query_one(TimeEntries).add_new_entry(now, task_name)
