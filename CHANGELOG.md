@@ -1,3 +1,9 @@
+## v0.1.1 (2023-02-26)
+
+### Fix
+
+- fix focus error when input is hidden
+
 ## v0.1.0 (2023-02-26)
 
 ### Feat
@@ -9,6 +15,7 @@
 - add db package to store sessions
 - hide input when app is counting
 - add timer with start, stop and reset actions
+
 
 ### Refactor
 

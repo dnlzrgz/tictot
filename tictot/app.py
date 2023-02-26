@@ -92,6 +92,7 @@ class TictotApp(App):
         """Handle input submission."""
         self.current_task = event.value
         self.status = AppStatus.STARTED
+        self.set_focus(None)
 
     def start_timer(self) -> None:
         self.add_class("counting")
