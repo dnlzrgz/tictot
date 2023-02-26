@@ -25,7 +25,7 @@ class Config(metaclass=SingletonConfig):
 
     def __init__(self, debug: bool = False) -> None:
         self.DEBUG = debug
-        self.DB_PATH = "sqlite://:memory:"
+        self.DB_PATH = "sqlite://"
 
         if not self.DEBUG:
             home_dir = Path.home()
