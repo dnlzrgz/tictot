@@ -12,7 +12,24 @@ For the moment tictot only supports tracking time for a single task at a time. I
 
 ## Installation
 
-> Note: tictot is still in development and not yet available on PyPI.
+### Using pip
+
+```bash
+pip install tictot
+```
+
+### From source
+
+```bash
+git clone https://github.com/daniarlert/tictot.git
+```
+
+Now, install the application:
+
+```bash
+cd tictot && pip install .
+```
+
 
 ## To Do
 
