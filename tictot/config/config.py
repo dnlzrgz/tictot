@@ -6,7 +6,7 @@ class SingletonConfig(type):
     Singleton metaclass for Config class.
     """
 
-    _instances = {}
+    _instances: dict = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:

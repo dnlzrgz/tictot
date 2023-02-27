@@ -12,8 +12,10 @@ ListItem {
     padding: 1;
 }
 
-ListView {
+TimeEntries {
     min-height: 9;
+    height: 1fr;
+    max-height: 70%;
 }
 
 Timer {

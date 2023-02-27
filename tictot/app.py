@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from textual.app import App, ComposeResult
@@ -30,7 +31,8 @@ class TictotApp(App):
         ("q", "quit", "Quit"),
     ]
 
-    config = Config()
+    debug_mode = os.environ.get("DEBUG", False) in ["1", "TRUE", "True", "true", "on"]
+    config = Config(debug=debug_mode)
 
     db = DB(url=config.DB_PATH)
     db_session = db.session
