@@ -1,9 +1,13 @@
 [tool.poetry]
 name = "tictot"
 version = "0.1.4"
-description = ""
+description = "A time tracker for the terminal made with textual."
 authors = ["daniarlert <arlertdaniel@gmail.com>"]
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/daniarlert/tictot"
+repository = "https://github.com/daniarlert/tictot"
+keywords = ["cli", "terminal", "textual", "time management"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
