@@ -49,15 +49,6 @@ class Display(Static):
         self.time = 0.0
 
 
-class TaskInput(Static):
-    """
-    Input widget to enter the current task name.
-    """
-
-    def compose(self) -> ComposeResult:
-        yield Input(value=None, placeholder="Current task name", id="input")
-
-
 class Timer(Static):
     """
     A widget to display the stopwatch.
@@ -70,7 +61,7 @@ class Timer(Static):
         yield Display()
         yield Container(
             Button("Start", id="start", variant="success", disabled=False),
-            TaskInput(),
+            Input(value=None, placeholder="Current task name", id="input"),
             Button("Stop", id="stop", variant="error", disabled=True),
             classes="buttons",
         )

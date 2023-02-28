@@ -27,6 +27,7 @@ class TictotApp(App):
     CSS_PATH = "./style.css"
     BINDINGS = [
         ("s", "start_timer", "Start/Stop"),
+        ("ctrl+n", "new_task", "New task"),
         ("d", "toggle_dark", "Toggle dark mode"),
         ("q", "quit", "Quit"),
     ]
@@ -68,6 +69,14 @@ class TictotApp(App):
 
         self.db.close()
         await super().action_quit()
+
+    async def action_new_task(self) -> None:
+        if self.status == AppStatus.STARTED:
+            return
+
+        input = self.query_one("#input")
+        input.value = ""
+        self.set_focus(input, scroll_visible=True)
 
     def on_mount(self) -> None:
         """Create database tables."""
