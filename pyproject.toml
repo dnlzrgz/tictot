@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tictot"
-version = "0.1.4"
+version = "0.1.5"
 description = "A time tracker for the terminal made with textual."
 authors = ["daniarlert <arlertdaniel@gmail.com>"]
 readme = "README.md"

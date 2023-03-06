@@ -110,6 +110,7 @@ class TictotApp(App):
         self.query_one(Timer).start()
 
         self.query_one("#start").disabled = True
+        self.query_one(Input).disabled = True
         self.query_one("#stop").disabled = False
 
         if self.current_task:
@@ -131,6 +132,7 @@ class TictotApp(App):
 
         self.query_one("#stop").disabled = True
         self.query_one("#start").disabled = False
+        self.query_one(Input).disabled = False
 
     def add_entry(self, task_name: str = "Default") -> None:
         now = datetime.now()
