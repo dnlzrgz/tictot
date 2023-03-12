@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tictot"
-version = "0.1.5"
+version = "0.1.6"
 description = "A time tracker for the terminal made with textual."
 authors = ["daniarlert <arlertdaniel@gmail.com>"]
 readme = "README.md"
@@ -29,7 +29,7 @@ build-backend = "poetry.core.masonry.api"
 profile = "black"
 
 [tool.poetry.scripts]
-tictot = "tictot.cli:run"
+tictot = "tictot.cli:cli"
 
 [project.scripts]
-tictot = "tictot.cli:run"
+tictot = "tictot.cli:cli"

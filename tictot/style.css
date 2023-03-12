@@ -23,12 +23,6 @@ Timer {
     color: $text;
 }
 
-TaskInput {
-    border: none;
-    display: block;
-    min-width: 9;
-}
-
 Display {
     content-align: center middle;
     min-height: 3;
@@ -62,10 +56,6 @@ Display {
 
 .counting TimeDisplay {
     text-opacity: 100%;
-}
-
-.counting TaskInput {
-    display: none;
 }
 
 .counting #start {

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 import tictot.db.models as models
 
@@ -32,6 +32,13 @@ def get_task_by_name(db: Session, task_name: str) -> models.Task | None:
     Get a task by its name.
     """
     return db.query(models.Task).filter(models.Task.name == task_name).first()
+
+
+def get_tasks(db: Session) -> list[models.Task]:
+    """
+    Get all tasks.
+    """
+    return db.query(models.Task).all()
 
 
 def remove_task(db: Session, task_id: int) -> None:
@@ -139,3 +146,13 @@ def update_time_entry_end_time(
     db.commit()
     db.refresh(entry)
     return entry
+
+
+def get_time_entries_with_task_name(db: Session) -> list:
+    return (
+        db.query(models.TimeEntry)
+        .options(joinedload(models.TimeEntry.task))
+        .join(models.TimeEntry.task)
+        .add_columns(models.Task.name)
+        .all()
+    )
